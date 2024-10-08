@@ -8,7 +8,8 @@ import { Button } from '../ui/button'
 import { Link } from 'react-router-dom'
 import axios from 'axios'
 import { USER_API_END_POINT } from '@/utils/constant'
-const  Signup=()=> {
+import { toast } from 'sonner'
+const Signup = () => {
   const [input, setInput] = useState({
     fullname: "",
     email: "",
@@ -16,31 +17,45 @@ const  Signup=()=> {
     password: "",
     role: "",
     file: ""
-});
-// const {loading,user} = useSelector(store=>store.auth);
-// const dispatch = useDispatch();
-// const navigate = useNavigate();
+  });
+  // const {loading,user} = useSelector(store=>store.auth);
+  // const dispatch = useDispatch();
+  // const navigate = useNavigate();
 
-const changeEventHandler = (e) => {
+  const changeEventHandler = (e) => {
     setInput({ ...input, [e.target.name]: e.target.value });
-}
-const changeFileHandler = (e) => {
+  }
+  const changeFileHandler = (e) => {
     setInput({ ...input, file: e.target.files?.[0] });
-}
-const submitHandler = async (e) => {
+  }
+  const submitHandler = async (e) => {
     e.preventDefault();
-    const formData=new formData();
-    formData.append("fullname",input.fullname);
-    formData.append("email",input.email);
-    formData.append("phonenumber",input.phoneNumber);
-    formData.append("password",input.password);
-    formData.append("role",input.role);
-   try {
-     const res=await axios.post(`${USER_API_END_POINT}/register`)
-   } catch (error) {
-    
-   }
-    
+    const formData = new formData();
+    formData.append("fullname", input.fullname);
+    formData.append("email", input.email);
+    formData.append("phonenumber", input.phoneNumber);
+    formData.append("password", input.password);
+    formData.append("role", input.role);
+    if (input.file) {
+      formData.append("file", input.file)
+    }
+    try {
+      const res = await axios.post(`${USER_API_END_POINT}/register`, formData, {
+        headers: {
+          "content-Type": "multipart/form-data"
+        },
+        withCredentials: true,
+      });
+      if (res.data.success) {
+        Navigate("/login");
+        toast.success(res.data.message);
+      }
+    } catch (error) {
+      console.log(error);
+
+
+    }
+
   }
 
   return (
@@ -107,8 +122,8 @@ const submitHandler = async (e) => {
                   type="radio"
                   name="role"
                   value="student"
-                   checked={input.role === 'student'}
-                   onChange={changeEventHandler}
+                  checked={input.role === 'student'}
+                  onChange={changeEventHandler}
                   className="cursor-pointer"
                 />
                 <Label htmlFor="r1">Student</Label>
@@ -118,8 +133,8 @@ const submitHandler = async (e) => {
                   type="radio"
                   name="role"
                   value="recruiter"
-                   checked={input.role === 'recruiter'}
-                   onChange={changeEventHandler}
+                  checked={input.role === 'recruiter'}
+                  onChange={changeEventHandler}
                   className="cursor-pointer"
                 />
                 <Label htmlFor="r2">Recruiter</Label>
